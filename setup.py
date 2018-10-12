@@ -12,7 +12,7 @@ setup(
     url='http://pypi.python.org/pypi/Christofides/',
     license='LICENSE.txt',
     description='Christofides Algorithm for TSP.',
-    long_description=open('README.txt').read(),
+    long_description=open('README.md').read(),
     install_requires=[
     	"scipy >= 0.13.3",
         "networkx >= 1.11rc1",
