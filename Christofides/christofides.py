@@ -8,7 +8,6 @@ import networkx as nx
 import copy
 import itertools
 from operator import itemgetter
-import graph
 import time
 
 def _csr_gen_triples(A):
@@ -175,15 +174,19 @@ def compute(M):
 			}
 
 if __name__ == "__main__":
-	print 'Testing...'
+	print('Testing...')
 	start = time.time()
-	distance_matrix = graph.distance_matrix
+	import sys
+	if sys.version_info[0] <= 2:
+		from graph import distance_matrix
+	else:
+		from .graph import distance_matrix
 	Approximation =  compute(distance_matrix)
 	end = time.time()-start
-	print 'Computation Successful...'
-	print 'Distance Matrix:\n'
-	print graph.distance_matrix
-	print '\n1.5 Approximation of TSP (Christofide\'s algorithm):\n', Approximation['Christofides_Solution']
-	print 'Travel Cost:', Approximation['Travel_Cost']
-	print 'Computation Time:', end
-	print ''
+	print('Computation Successful...')
+	print('Distance Matrix:\n')
+	print(graph.distance_matrix)
+	print('\n1.5 Approximation of TSP (Christofide\'s algorithm):\n', Approximation['Christofides_Solution'])
+	print('Travel Cost:', Approximation['Travel_Cost'])
+	print('Computation Time:', end)
+	print()
