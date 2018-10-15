@@ -7,7 +7,6 @@ from munkres import Munkres
 import networkx as nx
 import copy
 import itertools
-from operator import itemgetter
 import time
 
 def _csr_gen_triples(A):
@@ -20,7 +19,7 @@ def _csr_gen_triples(A):
 	data, indices, indptr = A.data, A.indices, A.indptr
 	for i in range(nrows):
 		for j in range(indptr[i], indptr[i+1]):
-			graph.add_edge(i,indices[j], weight = data[j])   
+			graph.add_edge(i,indices[j], weight = data[j])
 	return graph.edges(data = 'weight')
 
 def _odd_vertices_of_MST(M, number_of_nodes):
@@ -96,17 +95,16 @@ def create_Multigraph(M, MST, indexes, odd_vertices):
 	for pair in indexes:
 		multigraph.add_edge(pair[0],pair[1],weight=M[pair[0]][pair[1]])
 	return multigraph
-	
+
 def Euler_Tour(multigraph):
 	""" Uses Fleury's algorithm to find the Euler Tour of the MultiGraph.
 
 	"""
 	tour = []
 	temp_graph = nx.MultiGraph()
-	graph_nodes = nx.nodes(multigraph)
-	current_node = graph_nodes[0]
+	current_node = [n for n in nx.nodes(multigraph)][0]
 	tour.append(current_node)
-	while nx.number_of_edges(multigraph) > 0: 	
+	while nx.number_of_edges(multigraph) > 0:
 		for edge in multigraph.edges(current_node):
 			temp_graph = copy.deepcopy(multigraph)
 			temp_graph.remove_edge(edge[0], edge[1], key=None)
@@ -116,10 +114,12 @@ def Euler_Tour(multigraph):
 				multigraph.remove_edge(edge[0], edge[1], key=None)
 				break
 		else:
+			edge = [e for e in multigraph.edges(current_node)][-1]
 			tour.append(edge[1])
 			current_node = edge[1]
 			multigraph.remove_edge(edge[0], edge[1], key=None)
-			multigraph.remove_nodes_from(nx.isolates(multigraph))
+			isolates = [n for n in nx.isolates(multigraph)]
+			multigraph.remove_nodes_from(isolates)
 	return tour
 
 def shortcut_Euler_Tour(tour):
@@ -155,7 +155,7 @@ def compute(M):
 	"""
 	MST = _csr_gen_triples(minimum_spanning_tree(csr_matrix(M)))
 	odd_vertices = _odd_vertices_of_MST(MST, csr_matrix(M).shape[0])
-	bipartite_set = [set(i) for i in itertools.combinations(set(odd_vertices), len(odd_vertices)/2)]
+	bipartite_set = [set(i) for i in itertools.combinations(set(odd_vertices), int(len(odd_vertices)/2))]
 	bipartite_graphs = bipartite_Graph(M, bipartite_set, odd_vertices)
 	indexes = min_Munkres(M, bipartite_graphs)
 	multigraph = create_Multigraph(M, MST, indexes, odd_vertices)
@@ -164,29 +164,26 @@ def compute(M):
 	Christofides_Solution = shortcut_Euler_Tour(euler_tour)
 	Travel_Cost = cost(Christofides_Solution, M)
 	return {
-			'Christofides_Solution': Christofides_Solution, 
-			'Travel_Cost': Travel_Cost, 
-			'MST': MST, 
-			'Odd_Vertices': odd_vertices, 
-			'Indexes': indexes, 
-			'Multigraph': multiGraph.edges(data='weight'), 
+			'Christofides_Solution': Christofides_Solution,
+			'Travel_Cost': Travel_Cost,
+			'MST': MST,
+			'Odd_Vertices': odd_vertices,
+			'Indexes': indexes,
+			'Multigraph': multiGraph.edges(data='weight'),
 			'Euler_Tour': euler_tour
 			}
 
 if __name__ == "__main__":
 	print('Testing...')
 	start = time.time()
-	import sys
-	if sys.version_info[0] <= 2:
-		from graph import distance_matrix
-	else:
-		from .graph import distance_matrix
+	from graph import distance_matrix
 	Approximation =  compute(distance_matrix)
 	end = time.time()-start
 	print('Computation Successful...')
 	print('Distance Matrix:\n')
-	print(graph.distance_matrix)
-	print('\n1.5 Approximation of TSP (Christofide\'s algorithm):\n', Approximation['Christofides_Solution'])
-	print('Travel Cost:', Approximation['Travel_Cost'])
-	print('Computation Time:', end)
-	print()
+	print(distance_matrix)
+	print('\n1.5 Approximation of TSP (Christofide\'s algorithm):')
+	print(Approximation['Christofides_Solution'])
+	print('Travel Cost:'+str(Approximation['Travel_Cost']))
+	print('Computation Time:'+str(end))
+	print('')
