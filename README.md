@@ -1,11 +1,9 @@
-========================
  Christofides Algorithm
 ========================
 
-This package(Christofides) provides a way to implement Christofides algorithm
-for solving Travelling Saleman Problem(TSP) to obtain an approximate solution
-on an undirected graph(Distance Matrix) provided as an upper Triangular matrix.
-The Distance from a node on to itself is assumed 0.
+This package provides a way to implement the Christofides algorithm
+for solving Travelling Saleman Problem (TSP) to obtain an approximate solution
+on an undirected graph.
 
 Usage
 ======
